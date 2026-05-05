@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 import argparse
+from google.genai import types
 
 def main():
     
@@ -14,22 +15,31 @@ def main():
 		raise RuntimeError("environmental variable was not found")
 
 	client = genai.Client(api_key=api_key)
-
-	print("Hello from aigent!")
-
+	
 	#creates positional argument for argparse to use with user generated input, accessed with args.user_prompt
 	parser = argparse.ArgumentParser(description="Genai Chatbot")
 	parser.add_argument("user_prompt", type=str, help="User prompt")
 	args = parser.parse_args()
 
-	response = client.models.generate_content(
-		model='gemini-2.5-flash', contents=args.user_prompt
-    	)
+	# creates a new list of types.content and set's user's prompt as message, note types imported from google.genai
+	messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
 
+	response = client.models.generate_content(
+		model='gemini-2.5-flash', contents=messages
+    	)
+	
 	usage_metadata = response.usage_metadata
+
 	if usage_metadata is None:
 		raise RuntimeError("failed API request")
 
+	print("Hello from aigent!")
+
+		
+
+	
+
+	
 	prompt_tokens = usage_metadata.prompt_token_count
 	response_tokens = usage_metadata.candidates_token_count
 
