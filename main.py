@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 import argparse
 from google.genai import types
+from functions import get_files_info
 
 def main():
     
@@ -19,6 +20,7 @@ def main():
 	#creates positional argument for argparse to use with user generated input, accessed with args.user_prompt
 	parser = argparse.ArgumentParser(description="Genai Chatbot")
 	parser.add_argument("user_prompt", type=str, help="User prompt")
+	parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
 	args = parser.parse_args()
 
 	# creates a new list of types.content and set's user's prompt as message, note types imported from google.genai
@@ -39,15 +41,23 @@ def main():
 
 	
 
-	
+	user_prompt = args.user_prompt
 	prompt_tokens = usage_metadata.prompt_token_count
 	response_tokens = usage_metadata.candidates_token_count
 
 	
+	get_files_info("calculator", ".")
+
+
+
+
+	# if args.verbose:
+	#	print(f"User prompt: {user_prompt}")
+	#	print(f"Prompt tokens: {prompt_tokens}")
+	#	print(f"Response tokens: {response_tokens}")
 	
-	print(f"Prompt tokens: {prompt_tokens}")
-	print(f"Response tokens: {response_tokens}")
 	
+	#print(response.text)
 	
 if __name__ == "__main__":
 	main()
