@@ -1,5 +1,6 @@
 import os
 import subprocess
+from google.genai import types
 
 def run_python_file(working_directory, file_path, args=None):
 
@@ -47,5 +48,28 @@ def run_python_file(working_directory, file_path, args=None):
     except Exception as e:
         return f"Error: executing Python file: {e}"
 
+#Gemini API function caller for run_python_file. Shows LLM how to call the function
+
+schema_run_python_file = types.FunctionDeclaration(
+        name="run_python_file",
+        description="Allows LLM to run user-specified python code and returns results/errors",
+        parameters=types.Schema(
+                type=types.Type.OBJECT,
+		required=["file_path"],
+                properties={
+                        "file_path": types.Schema(
+                                type=types.Type.STRING,
+                                description="points to file location of python code to be processed"),
+			"args": types.Schema(
+				type=types.Type.ARRAY,
+				description="optional arguments",
+				items=types.Schema(
+					type=types.Type.STRING,
+					description="argument text"
+					)
+				)
+			},
+        	),
+	)
         
 

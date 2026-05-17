@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 def write_file(working_directory, file_path, content):
     
@@ -33,3 +34,25 @@ def write_file(working_directory, file_path, content):
 
 	#final content returned
     
+
+#Gemini API function caller for write_file function. Shows LLM how to call the function
+
+schema_write_file = types.FunctionDeclaration(
+        name="write_file",
+        description="Checks for missing parent directories of target file and creates if needed. Opens file at target location in write mode and overwrites file with user provided text",
+        parameters=types.Schema(
+                type=types.Type.OBJECT,
+		required=["file_path"],
+                properties={
+                        "file_path": types.Schema(
+                                type=types.Type.STRING,
+                                description="path to working file",
+			),
+			"content": types.Schema(
+                                type=types.Type.STRING,
+				description="content to overwrite the target file"
+                        ),
+        	},
+        ),
+)
+

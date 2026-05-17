@@ -1,9 +1,11 @@
 import os
+from prompts import system_prompt
 from dotenv import load_dotenv
 from google import genai
 import argparse
 from google.genai import types
-from functions import get_files_info
+from functions.get_file_content import get_file_content
+from call_function import available_functions
 
 def main():
     
@@ -27,7 +29,12 @@ def main():
 	messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
 
 	response = client.models.generate_content(
-		model='gemini-2.5-flash', contents=messages
+		model='gemini-2.5-flash',
+		contents=messages,
+		config=types.GenerateContentConfig(
+			tools=[available_functions],
+			system_instruction=system_prompt,
+			temperature=0),
     	)
 	
 	usage_metadata = response.usage_metadata
@@ -35,29 +42,25 @@ def main():
 	if usage_metadata is None:
 		raise RuntimeError("failed API request")
 
-	print("Hello from aigent!")
-
-		
-
 	
-
 	user_prompt = args.user_prompt
 	prompt_tokens = usage_metadata.prompt_token_count
 	response_tokens = usage_metadata.candidates_token_count
 
 	
-	get_files_info("calculator", ".")
-
-
-
-
-	# if args.verbose:
-	#	print(f"User prompt: {user_prompt}")
-	#	print(f"Prompt tokens: {prompt_tokens}")
-	#	print(f"Response tokens: {response_tokens}")
+	if args.verbose:
+		print(f"User prompt: {user_prompt}")
+		print(f"Prompt tokens: {prompt_tokens}")
+		print(f"Response tokens: {response_tokens}")
 	
 	
-	#print(response.text)
+	if response.function_calls:
+		for function_call in response.function_calls:
+			print(f"Calling function: {function_call.name}({function_call.args})")
+
+	else:
+	
+		print(response.text)
 	
 if __name__ == "__main__":
 	main()
